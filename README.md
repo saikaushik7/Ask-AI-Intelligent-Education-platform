@@ -1,108 +1,72 @@
 Ask AI – Intelligent Education Platform
 
-A complete AI-powered learning assistant built using Flask, Google Gemini, FAISS, BART Summarizer, OCR, and interactive tools such as Document Upload, Summarization, Quiz Generator, and AI Doubt Resolver.
+An AI-powered education web platform that transforms any uploaded document into an interactive learning system. It provides automatic text extraction, summarization, question generation, chatbot-based doubt solving (RAG), and adaptive MCQ quizzes, making learning efficient and intelligent.
 
-🚀 Project Overview
+Project Overview
 
-Ask-AI is an intelligent educational platform that allows students to upload study materials and receive:
+Ask-AI is a Flask-based web application designed to help students and educators learn from documents more effectively.
+After uploading a PDF/DOCX/TXT file, the system automatically:
 
-✓ Smart summaries
+✅ Extracts text
+✅ Summarizes the document using BART
+✅ Generates MCQ quizzes using Gemini AI
+✅ Provides doubt-resolution using Retrieval-Augmented Generation (RAG)
+✅ Saves user history with authentication
 
-✓ Auto-generated MCQ quizzes from the document
+This platform acts as an AI tutor that personalizes the learning experience using modern NLP models.
 
-✓ A RAG-based doubt resolver powered by semantic search
+Core Features
+🔹 1. Document Upload & OCR Extraction
+Supports PDF, DOCX, TXT
+For scanned PDFs → OCR performed using Tesseract
+Extracted text stored in SQLite database
+🔹 2. AI Summarization (BART CNN Model)
+Uses HuggingFace BART-Large-CNN
+Produces concise, meaningful summaries
+Adjustable target length based on document
+🔹 3. Doubt Resolver using RAG
+FAISS vector index built from document chunks
+Embeddings generated using Google Gemini Embedding Model
+User queries answered contextually using document-based retrieval
+🔹 4. Intelligent Quiz Generator
+Uses Gemini Flash 2.5 to generate:
+High-quality MCQs
+Meaningful distractors
+Correct answers & explanations
+Interactive quiz interface with:
+Instant feedback
+Colored correctness indicators
+Final score report
+🔹 5. User Authentication System
+Register/Login using username & password
+Flask-Login session management
+Users can:
+Upload documents
+Generate summaries
+Take quizzes
+Solve doubts
 
-✓ Clean UI with glass-morphism
 
-✓ Secure login & register authentication
+           Tech Stack
+| Layer           | Technology                                            |
+| --------------- | ----------------------------------------------------- |
+| Backend         | Flask, Python                                         |
+| Frontend        | HTML, CSS, Bootstrap, Glass-morphism UI               |
+| AI Models       | Google Gemini 2.5, Gemini Embeddings, BART Summarizer |
+| OCR             | Tesseract                                             |
+| Vector Database | FAISS                                                 |
+| Database        | SQLite                                                |
+| Version Control | Git + GitHub                                          |
 
-✓ Full document history & deletion
-
-Everything is processed locally except AI models, which use Google Gemini APIs.
-
-🧠 Key Features
-1️⃣ Document Upload & OCR
-
-Upload PDF, TXT, DOCX
-
-Extract text using:
-
-PDF text extraction
-
-OCR using Tesseract for scanned documents
-
-DOCX text extraction
-
-Automatically indexes document text using FAISS & Gemini embeddings.
-
-2️⃣ AI-Powered Summarization
-
-Uses Facebook BART Large CNN model
-
-Generates a summary of ~35% of document length
-
-Clean UI showing summary stats (ratio, word count)
-
-3️⃣ RAG-Enabled Doubt Resolver
-
-Ask any question related to the uploaded document
-
-Uses:
-
-Google text-embedding-004
-
-FAISS vector search
-
-Gemini generative model
-
-Produces accurate, context-aware answers
-
-4️⃣ MCQ Quiz Generator
-
-Generates high-quality AI-generated quizzes directly from your document
-
-Each question includes:
-
-4 options
-
-Correct answer
-
-Explanation
-
-Interactive quiz player with:
-
-Correct/wrong highlighting
-
-Score tracking
-
-Final results screen
-
-5️⃣ Secure User Login System
-
-Authentication via:
-
-Username
-
-Email
-
-Password
-
-Flask-Login used for session management
-
-User-specific document history & quiz results
-
-🛠️ Tech Stack
-Layer	Technology
-Backend	Flask, Python
-Frontend	HTML, CSS, Bootstrap, Glass-morphism UI
-AI Models	Google Gemini 2.5, Gemini Embeddings, BART Summarizer
-OCR	Tesseract
-Vector Database	FAISS
-Database	SQLite
-Version Control	Git + GitHub
-📂 Project Structure
+       Project Structure
+       
 ai_doc_app/
-│
+│── app.py                # Main Flask app
+│── config.py             # Configuration
+│── models.py             # Database models
+│── requirements.txt      # Dependencies
+│── users.db              # SQLite database
+│   
 ├── auth/                 → Login/Register routes
 ├── docs/                 → Uploading, OCR, Summarization, FAISS
 ├── quiz/                 → MCQ quiz generator & routes
@@ -119,56 +83,17 @@ ai_doc_app/
 ├── requirements.txt      → Python dependencies
 └── README.md
 
-⚙️ How to Run the Project
-1️⃣ Create Virtual Environment
-conda create -n ai-doc-app python=3.10
-conda activate ai-doc-app
 
-2️⃣ Install Requirements
-pip install -r requirements.txt
+Why This Project Is Important?
+  Solves real educational challenges
+  Automates study workflows
+  Uses industry-standard AI technologies
+  Demonstrates end-to-end system integration:
+    NLP
+    RAG search
+    LLM prompting
+    Web development
+    Databases
 
-3️⃣ Add Your Gemini API Key
+This project is a perfect capstone for demonstrating applied AI + software engineering.
 
-Create a .env file:
-
-GEMINI_API_KEY=your_api_key_here
-
-4️⃣ Run Flask
-python app.py
-
-5️⃣ Open in Browser
-http://127.0.0.1:5000
-
-🎯 Screenshots (Add your own)
-
-Login Page
-
-Register Page
-
-Dashboard
-
-Summarizer
-
-Quiz Interface
-
-Final Results
-
-Doubt Resolver
-
-(You can upload these images on GitHub and embed them here)
-
-🏁 Conclusion
-
-This project demonstrates a complete AI-driven educational assistant with:
-
-File processing
-
-AI summarization
-
-Interactive learning tools
-
-RAG-based doubt solving
-
-Full-stack Flask + AI integration
-
-Perfect for academic evaluation, portfolios, and real-world learning platforms.
