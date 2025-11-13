@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center">
+  <h2>Doubt Resolver (RAG + Gemini + FAISS)</h2>
+  <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('docs_bp.upload') }}">← Back to Upload</a>
+</div>
+
+<div class="row mt-3">
+  <!-- LEFT: Question box -->
+  <div class="col-md-5">
+    <form method="POST">
+      <label class="form-label">Your Question</label>
+      <textarea class="form-control" name="question" rows="6" placeholder="Ask a question based on your latest uploaded document..." required></textarea>
+      <button class="btn btn-primary btn-sm mt-3">Ask</button>
+    </form>
+  </div>
+
+  <!-- RIGHT: Answer & References -->
+  <div class="col-md-7">
+    {% if answer %}
+      <div class="d-flex align-items-center mb-2">
+        <h5 class="mb-0 me-3">Answer</h5>
+        <span class="badge {{ 'bg-success' if found_in_pdf else 'bg-secondary' }}">
+          {{ 'Found in PDF' if found_in_pdf else 'Not found in PDF' }}
+        </span>
+        <span class="ms-2 text-muted">top similarity: {{ similarity_top }}</span>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body" style="white-space: pre-wrap;">
+          {{ answer }}
+        </div>
+      </div>
+
+      {% if found_in_pdf and reference_chunk %}
+        <h6>Reference from PDF</h6>
+        <div class="card border-success mb-3">
+          <div class="card-body" style="white-space: pre-wrap; max-height: 220px; overflow-y: auto;">
+            {{ reference_chunk }}
+          </div>
+        </div>
+      {% endif %}
+    {% else %}
+      <p class="text-muted mt-4">Type a question and press “Ask” to see the answer here.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

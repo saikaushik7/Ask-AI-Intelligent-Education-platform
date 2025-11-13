@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Summary - {{ filename }}</h2>
+
+<div class="card mt-4">
+  <div class="card-body" style="white-space: pre-wrap;">
+    {{ summary }}
+  </div>
+</div>
+
+<a href="/upload" class="btn btn-secondary mt-4">Back to Uploads</a>
+{% endblock %}

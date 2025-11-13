@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  #feedback p { font-weight: 600; font-size: 1.05rem; }
+  #feedback .explain { color: #ffd7d7; font-weight: 500; }
+  .option-btn { 
+    text-align: left; 
+    white-space: normal; 
+    padding: 18px; 
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .btn-outline-light {
+    background-color: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+  }
+
+  .btn-outline-light:hover {
+    background-color: rgba(0,255,255,0.15);
+    border-color: rgba(0,255,255,0.4);
+  }
+
+  .btn-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px rgba(40,167,69,0.6);
+  }
+
+  .btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px rgba(220,53,69,0.6);
+  }
+
+  .btn:focus, .btn:active {
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  #resultBox h4 { 
+    font-size: 1.6rem; 
+    font-weight: 800; 
+    color: #00d2ff; 
+    text-shadow: 0 0 8px rgba(0,255,255,0.4);
+  }
+
+  #resultBox p { 
+    font-size: 1.1rem; 
+    font-weight: 700; 
+    color: #fff; 
+  }
+</style>
+
+<div class="card p-4" id="quiz-box" style="background: rgba(0,0,0,0.35);">
+  <h3 id="question-number" class="text-info mb-2"></h3>
+  <p id="question-text" class="lead text-white"></p>
+  <div id="options" class="mt-4"></div>
+  <div id="feedback" class="mt-3"></div>
+  <button id="nextBtn" class="btn btn-primary mt-3 w-100" style="display:none;">Next</button>
+</div>
+
+<div id="resultBox" class="card p-4 text-center mt-4" style="display:none; background: rgba(0,0,0,0.45);"></div>
+
+<script>
+let questions = {{ questions|tojson }};
+let currentIndex = 0;
+let correctCount = 0;
+let answered = false;
+
+const qNumber = document.getElementById('question-number');
+const qText = document.getElementById('question-text');
+const optionsDiv = document.getElementById('options');
+const feedbackDiv = document.getElementById('feedback');
+const nextBtn = document.getElementById('nextBtn');
+const resultBox = document.getElementById('resultBox');
+
+function showQuestion(index) {
+  if (index >= questions.length) {
+    finishQuiz();
+    return;
+  }
+
+  const q = questions[index];
+  qNumber.innerHTML = `Question ${index + 1} of ${questions.length}`;
+  qText.innerText = q.question || "";
+  feedbackDiv.innerHTML = "";
+  optionsDiv.innerHTML = "";
+  answered = false;
+
+  (q.options || []).forEach(opt => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn btn-outline-light option-btn w-100 mt-2";
+    btn.innerText = opt;
+    btn.onclick = () => {
+      const match = opt.match(/^([A-D])\s*[\)\.:-]?\s*/i);
+      const letter = match ? match[1].toUpperCase() : opt.slice(0,1).toUpperCase();
+      checkAnswer(letter);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  nextBtn.style.display = "none";
+  nextBtn.innerText = (index === questions.length - 1) ? "Finish" : "Next";
+}
+
+async function checkAnswer(selected) {
+  if (answered) return;
+  answered = true;
+
+  const res = await fetch("/quiz/check", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ qid: currentIndex, chosen: selected })
+  });
+
+  if (!res.ok) {
+    feedbackDiv.innerHTML = `<p class="text-warning">Error checking answer. Try again.</p>`;
+    return;
+  }
+
+  const data = await res.json();
+  const correctLetter = (data.correct || "").trim().toUpperCase();
+
+  const buttons = optionsDiv.querySelectorAll("button");
+  buttons.forEach(b => {
+    b.disabled = true;
+    const labelMatch = b.innerText.match(/^([A-D])/i);
+    const label = labelMatch ? labelMatch[1].toUpperCase() : "";
+
+    b.classList.remove("btn-outline-light");
+    if (label === correctLetter) {
+      b.classList.add("btn-success");
+    } else if (label === selected && !data.is_correct) {
+      b.classList.add("btn-danger");
+    }
+  });
+
+  if (data.is_correct) {
+    correctCount++;
+    feedbackDiv.innerHTML = `<p class="text-success">✅ Correct! <span class="explain" style="color:#b6ffd7">${data.explanation}</span></p>`;
+  } else {
+    feedbackDiv.innerHTML = `
+      <p class="text-danger">❌ Wrong! <span style="color:#7fffb7; font-weight:800">Correct Option: ${correctLetter}</span></p>
+      <p class="explain" style="color:#ffd7d7">${data.explanation}</p>
+    `;
+  }
+
+  nextBtn.style.display = "block";
+}
+
+nextBtn.addEventListener("click", () => {
+  currentIndex++;
+  if (currentIndex < questions.length) {
+    showQuestion(currentIndex);
+    document.getElementById('quiz-box').scrollIntoView({behavior:"smooth", block:"start"});
+  } else {
+    finishQuiz();
+  }
+});
+
+async function finishQuiz() {
+  nextBtn.disabled = true;
+  const res = await fetch("/quiz/submit", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"}
+  });
+
+  if (!res.ok) {
+    feedbackDiv.innerHTML = `<p class="text-danger">Error submitting quiz — try again.</p>`;
+    nextBtn.disabled = false;
+    return;
+  }
+
+  const data = await res.json();
+
+  document.getElementById('quiz-box').style.display = "none";
+  nextBtn.style.display = "none";
+  resultBox.style.display = "block";
+
+  let feedbackText = "";
+  if (data.percent >= 80) feedbackText = "🌟 Excellent performance!";
+  else if (data.percent >= 50) feedbackText = "👍 Good job — keep improving!";
+  else feedbackText = "💡 Needs improvement — review the document again.";
+
+  resultBox.innerHTML = `
+    <h4>🎯 Final Score: <b style="color:#00ffea">${data.score}/${data.total}</b></h4>
+    <p style="color:#ffffff; font-size:1.1rem">Accuracy: <b style="color:#ffd76b">${data.percent}%</b></p>
+    <p style="color:#fff; font-weight:700; margin-top:10px">${feedbackText}</p>
+    <div style="margin-top:14px">
+      <a href="/quiz/start" class="btn btn-outline-light">Generate New Quiz</a>
+    </div>
+  `;
+  resultBox.scrollIntoView({behavior: "smooth", block: "center"});
+}
+
+showQuestion(currentIndex);
+</script>
+
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="glass-card p-4 rounded shadow-lg">
+  <div class="row">
+    <!-- LEFT SIDE -->
+    <div class="col-md-4">
+      <h3 class="text-white">Upload Document</h3>
+
+      <form method="POST" enctype="multipart/form-data" action="{{ url_for('docs_bp.upload') }}">
+        <input class="form-control mt-2" type="file" name="document" required>
+        <button class="btn btn-primary btn-sm mt-2" type="submit">Upload</button>
+      </form>
+
+      <hr class="border-light">
+
+      <!-- Action buttons -->
+      {% if latest_exists %}
+        <a class="btn btn-success btn-sm mt-1" href="{{ url_for('docs_bp.summarize_latest') }}">
+          Summarize
+        </a>
+
+        <a class="btn btn-secondary btn-sm mt-2" href="{{ url_for('rag_bp.doubt_resolver') }}">
+          Doubt Resolver
+        </a>
+
+        <a class="btn btn-warning btn-sm mt-2" href="{{ url_for('quiz_bp.start_quiz') }}">
+          Quiz Generator
+        </a>
+
+      {% else %}
+        <button class="btn btn-success btn-sm mt-1" type="button" disabled>Summarize</button>
+        <button class="btn btn-secondary btn-sm mt-2" type="button" disabled>Doubt Resolver</button>
+        <button class="btn btn-warning btn-sm mt-2" type="button" disabled>Quiz Generator</button>
+
+        <p class="text-muted mt-3">Please upload a document to enable actions.</p>
+      {% endif %}
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="col-md-8">
+      {% if extracted_text %}
+      <h3 class="text-white">Extracted Text</h3>
+      <div class="card mt-3 glass-inner">
+        <div class="card-body text-light" style="white-space: pre-wrap; max-height:300px; overflow-y:auto;">
+          {{ extracted_text }}
+        </div>
+      </div>
+      {% else %}
+      <h5 class="text-light mt-5">Extracted text will appear here after you upload a document.</h5>
+      {% endif %}
+
+      {% if summary %}
+      <hr class="border-light">
+      <h4 class="text-light">Summary Stats</h4>
+      <table class="table table-bordered table-light table-sm rounded" style="max-width:320px;">
+        <tr><th>Total Words</th><td>{{ total_words }}</td></tr>
+        <tr><th>Summary Words</th><td>{{ summary_words }}</td></tr>
+        <tr><th>Ratio</th><td>{{ ratio }}%</td></tr>
+      </table>
+
+      <h3 class="mt-3 text-white">Summary (≈35% words)</h3>
+      <div class="card mt-3 glass-inner">
+        <div class="card-body text-light" style="white-space: pre-wrap; max-height:250px; overflow-y:auto;">
+          {{ summary }}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.glass-inner {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+}
+</style>
+
+{% endblock %}

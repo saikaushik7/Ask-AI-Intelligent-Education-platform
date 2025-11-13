@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+<a class="btn btn-outline-secondary btn-sm mb-3" href="{{ url_for('docs_bp.upload') }}">← Back</a>
+
+<h3>Quiz Generator</h3>
+<p>Generate multiple-choice questions based on your latest uploaded document.</p>
+
+<form method="POST" action="{{ url_for('quiz_bp.start_quiz') }}">
+  <div class="mb-3" style="max-width:360px;">
+    <label class="form-label">Number of questions (1–50)</label>
+    <input type="number" class="form-control" name="num_questions" min="1" max="50" value="5" required>
+  </div>
+
+  <div class="mb-3" style="max-width:360px;">
+    <label class="form-label">Difficulty</label>
+    <select class="form-select" name="difficulty" required>
+      <option value="easy">Easy</option>
+      <option value="medium" selected>Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+  </div>
+
+  <button class="btn btn-warning">Generate Quiz</button>
+</form>
+
+{% endblock %}
